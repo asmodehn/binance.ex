@@ -15,19 +15,38 @@ defmodule BinanceTest do
     end
   end
 
-  test "ping on a custom endpoint" do
-    bypass = Bypass.open()
-    Application.put_env(:binance, :end_point, "http://localhost:#{bypass.port}/")
+  describe "endpoint can be changed at runtime" do
+    setup do
+      bypass = Bypass.open()
+      # save app configuration before change
+      prev_endpoint = Application.get_env(:binance, :end_point, :nonexistent)
 
-    Bypass.expect_once(bypass, "GET", "/api/v3/ping", fn conn ->
-      Plug.Conn.resp(conn, 200, """
-      {
-          "ping": "custom"
-      }
-      """)
-    end)
+      # changing configuration for custom tests (will break in async !)
+      Application.put_env(:binance, :end_point, "http://localhost:#{bypass.port}/")
 
-    assert Binance.ping() == {:ok, %{ping: "custom"}}
+      on_exit(fn ->
+        # recovering previous configuration
+        if prev_endpoint == :nonexistent do
+          Application.delete_env(:binance, :end_point)
+        else
+          Application.put_env(:binance, :end_point, prev_endpoint)
+        end
+      end)
+
+      %{bypass: bypass}
+    end
+
+    test "ping on a custom endpoint", %{bypass: bypass} do
+      Bypass.expect_once(bypass, "GET", "/api/v3/ping", fn conn ->
+        Plug.Conn.resp(conn, 200, """
+        {
+            "ping": "custom"
+        }
+        """)
+      end)
+
+      assert Binance.ping() == {:ok, %{"ping" => "custom"}}
+    end
   end
 
   test "get_server_time success return an ok, time tuple" do
