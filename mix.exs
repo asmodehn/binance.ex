@@ -18,7 +18,7 @@ defmodule Binance.MixProject do
     [
       mod: {Binance.Supervisor, []},
       applications: [:exconstructor, :poison, :httpoison],
-      extra_applications: [:logger]
+      extra_applications: [:logger, :bypass]
     ]
   end
 
@@ -30,7 +30,8 @@ defmodule Binance.MixProject do
       {:exconstructor, "~> 1.1.0"},
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:mix_test_watch, "~> 0.5", only: :dev, runtime: false},
-      {:exvcr, "~> 0.12.2", only: :test}
+      {:exvcr, "~> 0.12.2", only: :test},
+      {:bypass, "~> 2.1", only: :test}
     ]
   end
 

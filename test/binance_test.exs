@@ -3,6 +3,8 @@ defmodule BinanceTest do
   use ExVCR.Mock, adapter: ExVCR.Adapter.Hackney
   doctest Binance
 
+  require Bypass
+
   setup_all do
     HTTPoison.start()
   end
@@ -11,6 +13,21 @@ defmodule BinanceTest do
     use_cassette "ping_ok" do
       assert Binance.ping() == {:ok, %{}}
     end
+  end
+
+  test "ping on a custom endpoint" do
+    bypass = Bypass.open()
+    Application.put_env(:binance, :end_point, "http://localhost:#{bypass.port}/")
+
+    Bypass.expect_once(bypass, "GET", "/api/v3/ping", fn conn ->
+      Plug.Conn.resp(conn, 200, """
+      {
+          "ping": "custom"
+      }
+      """)
+    end)
+
+    assert Binance.ping() == {:ok, %{ping: "custom"}}
   end
 
   test "get_server_time success return an ok, time tuple" do
