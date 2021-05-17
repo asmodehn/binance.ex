@@ -59,7 +59,7 @@ defmodule Binance.Rest.HTTPClient do
     end
   end
 
-  def signed_request_binance(url, params, method) do
+  def signed_request_binance(url, params, method, apikey, secret) do
     argument_string =
       params
       |> prepare_query_params()
@@ -68,7 +68,7 @@ defmodule Binance.Rest.HTTPClient do
     signature =
       :crypto.hmac(
         :sha256,
-        Application.get_env(:binance, :secret_key),
+        secret,
         argument_string
       )
       |> Base.encode16()
@@ -79,7 +79,7 @@ defmodule Binance.Rest.HTTPClient do
            url,
            body,
            [
-             {"X-MBX-APIKEY", Application.get_env(:binance, :api_key)}
+             {"X-MBX-APIKEY", apikey}
            ]
          ]) do
       {:error, err} ->

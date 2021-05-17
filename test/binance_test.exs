@@ -266,7 +266,7 @@ defmodule BinanceTest do
     test "creates an order with a duration of good til cancel by default" do
       use_cassette "order_limit_buy_good_til_cancel_default_duration_success" do
         assert {:ok, %Binance.OrderResponse{} = response} =
-                 %Binance{}
+                 %Binance{api_key: "", secret_key: ""}
                  |> Binance.order_limit_buy("LTCBTC", 0.1, 0.01)
 
         assert response.client_order_id == "9kITBshSwrClye1HJcLM3j"
@@ -286,7 +286,7 @@ defmodule BinanceTest do
     test "creates an order with a duration of good til cancel by default(string quantity and price)" do
       use_cassette "order_limit_buy_good_til_cancel_default_duration_success" do
         assert {:ok, %Binance.OrderResponse{} = response} =
-                 %Binance{}
+                 %Binance{api_key: "", secret_key: ""}
                  |> Binance.order_limit_buy("LTCBTC", "0.1", "0.01")
 
         assert response.client_order_id == "9kITBshSwrClye1HJcLM3j"
@@ -306,7 +306,7 @@ defmodule BinanceTest do
     test "can create an order with a fill or kill duration" do
       use_cassette "order_limit_buy_fill_or_kill_success" do
         assert {:ok, %Binance.OrderResponse{} = response} =
-                 %Binance{}
+                 %Binance{api_key: "", secret_key: ""}
                  |> Binance.order_limit_buy("LTCBTC", 0.1, 0.01, "FOK")
 
         assert response.client_order_id == "dY67P33S4IxPnJGx5EtuSf"
@@ -326,7 +326,7 @@ defmodule BinanceTest do
     test "can create an order with am immediate or cancel duration" do
       use_cassette "order_limit_buy_immediate_or_cancel_success" do
         assert {:ok, %Binance.OrderResponse{} = response} =
-                 %Binance{}
+                 %Binance{api_key: "", secret_key: ""}
                  |> Binance.order_limit_buy("LTCBTC", 0.1, 0.01, "IOC")
 
         assert response.client_order_id == "zyMyhtRENlvFHrl4CitDe0"
@@ -346,7 +346,7 @@ defmodule BinanceTest do
     test "returns an insufficient balance error tuple" do
       use_cassette "order_limit_buy_error_insufficient_balance" do
         assert {:error, reason} =
-                 %Binance{}
+                 %Binance{api_key: "", secret_key: ""}
                  |> Binance.order_limit_buy("LTCBTC", 10_000, 0.001, "FOK")
 
         assert reason == %Binance.InsufficientBalanceError{
@@ -366,7 +366,7 @@ defmodule BinanceTest do
 
       use_cassette "order_limit_buy_very_low_price", custom_matchers: [matches_price] do
         assert {:ok, %Binance.OrderResponse{} = response} =
-                 %Binance{}
+                 %Binance{api_key: "", secret_key: ""}
                  |> Binance.order_limit_buy("DOGEBTC", 100, 0.000001)
 
         assert response.client_order_id == "cyNmMk8rcgunB0REmUlbyv"
@@ -388,7 +388,7 @@ defmodule BinanceTest do
     test "creates an order with a duration of good til cancel by default" do
       use_cassette "order_limit_sell_good_til_cancel_default_duration_success" do
         assert {:ok, %Binance.OrderResponse{} = response} =
-                 %Binance{}
+                 %Binance{api_key: "", secret_key: ""}
                  |> Binance.order_limit_sell("BTCUSDT", 0.001, 50_000)
 
         assert response.client_order_id == "9UFMPloZsQ3eshCx66PVqD"
@@ -408,7 +408,7 @@ defmodule BinanceTest do
     test "can create an order with a fill or kill duration" do
       use_cassette "order_limit_sell_fill_or_kill_success" do
         assert {:ok, %Binance.OrderResponse{} = response} =
-                 %Binance{}
+                 %Binance{api_key: "", secret_key: ""}
                  |> Binance.order_limit_sell("BTCUSDT", 0.001, 50_000, "FOK")
 
         assert response.client_order_id == "lKYECwEPSTPzurwx6emuN2"
@@ -428,7 +428,7 @@ defmodule BinanceTest do
     test "can create an order with am immediate or cancel duration" do
       use_cassette "order_limit_sell_immediate_or_cancel_success" do
         assert {:ok, %Binance.OrderResponse{} = response} =
-                 %Binance{}
+                 %Binance{api_key: "", secret_key: ""}
                  |> Binance.order_limit_sell("BTCUSDT", 0.001, 50_000, "IOC")
 
         assert response.client_order_id == "roSkLhwX9KCgYqr4yFPx1V"
@@ -450,7 +450,7 @@ defmodule BinanceTest do
     test "when called without symbol returns all open orders for all symbols" do
       use_cassette "get_open_orders_without_symbol_success" do
         assert {:ok, [%Binance.Order{} = order_1, %Binance.Order{} = order_2]} =
-                 %Binance{}
+                 %Binance{api_key: "", secret_key: ""}
                  |> Binance.get_open_orders()
 
         # open order 1
@@ -496,7 +496,7 @@ defmodule BinanceTest do
     test "when called with symbol returns all open orders for that symbols(string)" do
       use_cassette "get_open_orders_with_symbol_string_success" do
         assert {:ok, [%Binance.Order{} = result]} =
-                 %Binance{}
+                 %Binance{api_key: "", secret_key: ""}
                  |> Binance.get_open_orders("WABIBTC")
 
         assert result.client_order_id == "web_db04d8a507f14135a9a9d4467bc541a1"
@@ -521,7 +521,7 @@ defmodule BinanceTest do
     test "when called with symbol returns all open orders for that symbols(TradePair struct)" do
       use_cassette "get_open_orders_with_trade_pair_struct_string_success" do
         assert {:ok, [%Binance.Order{} = result]} =
-                 %Binance{}
+                 %Binance{api_key: "", secret_key: ""}
                  |> Binance.get_open_orders(%Binance.TradePair{:from => "WABI", :to => "BTC"})
 
         assert result.client_order_id == "web_db04d8a507f14135a9a9d4467bc541a1"
@@ -548,7 +548,7 @@ defmodule BinanceTest do
     test "when called with symbol(struct), orderId and timestamp cancels order" do
       use_cassette "cancel_order_by_struct_symbol_orderId_and_timestamp_success" do
         assert {:ok, %Binance.Order{} = order} =
-                 %Binance{}
+                 %Binance{api_key: "", secret_key: ""}
                  |> Binance.cancel_order(
                    %Binance.TradePair{:from => "XRP", :to => "USDT"},
                    1_564_000_518_279,
@@ -577,7 +577,7 @@ defmodule BinanceTest do
     test "when called with symbol(string), orderId and timestamp cancels order" do
       use_cassette "cancel_order_by_symbol_string_orderid_and_timestamp_success" do
         assert {:ok, %Binance.Order{} = order} =
-                 %Binance{}
+                 %Binance{api_key: "", secret_key: ""}
                  |> Binance.cancel_order(
                    "XRPUSDT",
                    1_564_000_518_279,
@@ -606,7 +606,7 @@ defmodule BinanceTest do
     test "when called with symbol(string), clientOrderId and timestamp cancels order" do
       use_cassette "cancel_order_by_symbol_string_clientOrderId_and_timestamp_success" do
         assert {:ok, %Binance.Order{} = order} =
-                 %Binance{}
+                 %Binance{api_key: "", secret_key: ""}
                  |> Binance.cancel_order(
                    "XRPUSDT",
                    1_564_000_518_279,

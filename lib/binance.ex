@@ -1,7 +1,9 @@
 defmodule Binance do
   alias Binance.Rest.HTTPClient
 
-  defstruct endpoint: "https://api.binance.com"
+  defstruct endpoint: "https://api.binance.com",
+            api_key: nil,
+            secret_key: nil
 
   # Server
 
@@ -254,10 +256,12 @@ defmodule Binance do
   """
 
   def get_account(%Binance{} = binance \\ %Binance{}) do
-    api_key = Application.get_env(:binance, :api_key)
-    secret_key = Application.get_env(:binance, :secret_key)
-
-    case HTTPClient.get_binance(binance.endpoint <> "/api/v3/account", %{}, secret_key, api_key) do
+    case HTTPClient.get_binance(
+           binance.endpoint <> "/api/v3/account",
+           %{},
+           binance.secret_key,
+           binance.api_key
+         ) do
       {:ok, data} -> {:ok, Binance.Account.new(data)}
       error -> error
     end
@@ -394,7 +398,13 @@ defmodule Binance do
       |> Map.merge(unless(is_nil(time_in_force), do: %{timeInForce: time_in_force}, else: %{}))
       |> Map.merge(unless(is_nil(price), do: %{price: format_price(price)}, else: %{}))
 
-    case HTTPClient.signed_request_binance(binance.endpoint <> "/api/v3/order", arguments, :post) do
+    case HTTPClient.signed_request_binance(
+           binance.endpoint <> "/api/v3/order",
+           arguments,
+           :post,
+           binance.api_key,
+           binance.secret_key
+         ) do
       {:ok, %{"code" => code, "msg" => msg}} ->
         {:error, {:binance_error, %{code: code, msg: msg}}}
 
@@ -636,14 +646,11 @@ defmodule Binance do
   ```
   """
   def get_open_orders(%Binance{} = binance \\ %Binance{}) do
-    api_key = Application.get_env(:binance, :api_key)
-    secret_key = Application.get_env(:binance, :secret_key)
-
     case HTTPClient.get_binance(
            binance.endpoint <> "/api/v3/openOrders",
            %{},
-           secret_key,
-           api_key
+           binance.secret_key,
+           binance.api_key
          ) do
       {:ok, data} -> {:ok, Enum.map(data, &Binance.Order.new(&1))}
       err -> err
@@ -658,14 +665,11 @@ defmodule Binance do
   end
 
   def get_open_orders(%Binance{} = binance, symbol) when is_binary(symbol) do
-    api_key = Application.get_env(:binance, :api_key)
-    secret_key = Application.get_env(:binance, :secret_key)
-
     case HTTPClient.get_binance(
            binance.endpoint <> "/api/v3/openOrders",
            %{:symbol => symbol},
-           secret_key,
-           api_key
+           binance.secret_key,
+           binance.api_key
          ) do
       {:ok, data} -> {:ok, Enum.map(data, &Binance.Order.new(&1))}
       err -> err
@@ -729,9 +733,6 @@ defmodule Binance do
       when is_binary(symbol)
       when is_integer(timestamp)
       when is_integer(order_id) or is_binary(orig_client_order_id) do
-    api_key = Application.get_env(:binance, :api_key)
-    secret_key = Application.get_env(:binance, :secret_key)
-
     arguments =
       %{
         symbol: symbol,
@@ -750,8 +751,8 @@ defmodule Binance do
     case HTTPClient.get_binance(
            binance.endpoint <> "/api/v3/order",
            arguments,
-           secret_key,
-           api_key
+           binance.secret_key,
+           binance.api_key
          ) do
       {:ok, data} -> {:ok, Binance.Order.new(data)}
       err -> err
@@ -821,9 +822,6 @@ defmodule Binance do
        when is_binary(symbol)
        when is_integer(timestamp)
        when is_integer(order_id) or is_binary(orig_client_order_id) do
-    api_key = Application.get_env(:binance, :api_key)
-    secret_key = Application.get_env(:binance, :secret_key)
-
     arguments =
       %{
         symbol: symbol,
@@ -848,8 +846,8 @@ defmodule Binance do
     case HTTPClient.delete_binance(
            binance.endpoint <> "/api/v3/order",
            arguments,
-           secret_key,
-           api_key
+           binance.secret_key,
+           binance.api_key
          ) do
       {:ok, data} -> {:ok, Binance.Order.new(data)}
       err -> err
