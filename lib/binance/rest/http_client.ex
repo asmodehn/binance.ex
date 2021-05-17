@@ -1,11 +1,11 @@
 defmodule Binance.Rest.HTTPClient do
   def get_binance(url, headers \\ []) do
-    HTTPoison.get("#{endpoint()}#{url}", headers)
+    HTTPoison.get(url, headers)
     |> parse_response
   end
 
   def delete_binance(url, headers \\ []) do
-    HTTPoison.delete("#{endpoint()}#{url}", headers)
+    HTTPoison.delete(url, headers)
     |> parse_response
   end
 
@@ -76,7 +76,7 @@ defmodule Binance.Rest.HTTPClient do
     body = "#{argument_string}&signature=#{signature}"
 
     case apply(HTTPoison, method, [
-           "#{endpoint()}#{url}",
+           url,
            body,
            [
              {"X-MBX-APIKEY", Application.get_env(:binance, :api_key)}
@@ -117,7 +117,7 @@ defmodule Binance.Rest.HTTPClient do
 
   defp do_unsigned_request(url, nil, method, headers) do
     apply(HTTPoison, method, [
-      "#{endpoint()}#{url}",
+      url,
       headers
     ])
   end
@@ -128,14 +128,14 @@ defmodule Binance.Rest.HTTPClient do
       |> prepare_query_params()
 
     apply(HTTPoison, :get, [
-      "#{endpoint()}#{url}" <> "?#{argument_string}",
+      url <> "?#{argument_string}",
       headers
     ])
   end
 
   defp do_unsigned_request(url, body, method, headers) do
     apply(HTTPoison, method, [
-      "#{endpoint()}#{url}",
+      url,
       body,
       headers
     ])
@@ -179,9 +179,5 @@ defmodule Binance.Rest.HTTPClient do
     |> Map.to_list()
     |> Enum.map(fn x -> Tuple.to_list(x) |> Enum.join("=") end)
     |> Enum.join("&")
-  end
-
-  defp endpoint() do
-    Application.get_env(:binance, :end_point, "https://api.binance.com")
   end
 end
