@@ -236,8 +236,8 @@ defmodule Binance do
 
   Returns `{:ok, %Binance.SystemStatus{}}` or `{:error, reason}`.
   """
-  def get_system_status() do
-    case HTTPClient.get_binance("/sapi/v1/system/status") do
+  def get_system_status(%Binance{} = binance \\ %Binance{}) do
+    case HTTPClient.get_binance(binance.endpoint <> "/sapi/v1/system/status") do
       {:ok, data} -> {:ok, Binance.SystemStatus.new(data)}
       error -> error
     end
