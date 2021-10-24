@@ -1,13 +1,11 @@
 defmodule Binance.Rest.HTTPClient do
-  @endpoint Application.get_env(:binance, :end_point, "https://api.binance.com")
-
   def get_binance(url, headers \\ []) do
-    HTTPoison.get("#{@endpoint}#{url}", headers)
+    HTTPoison.get(url, headers)
     |> parse_response
   end
 
   def delete_binance(url, headers \\ []) do
-    HTTPoison.delete("#{@endpoint}#{url}", headers)
+    HTTPoison.delete(url, headers)
     |> parse_response
   end
 
@@ -61,7 +59,7 @@ defmodule Binance.Rest.HTTPClient do
     end
   end
 
-  def signed_request_binance(url, params, method) do
+  def signed_request_binance(url, params, method, apikey, secret) do
     argument_string =
       params
       |> prepare_query_params()
@@ -70,7 +68,7 @@ defmodule Binance.Rest.HTTPClient do
     signature =
       generate_signature(
         :sha256,
-        Application.get_env(:binance, :secret_key),
+        secret,
         argument_string
       )
       |> Base.encode16()
@@ -78,10 +76,10 @@ defmodule Binance.Rest.HTTPClient do
     body = "#{argument_string}&signature=#{signature}"
 
     case apply(HTTPoison, method, [
-           "#{@endpoint}#{url}",
+           url,
            body,
            [
-             {"X-MBX-APIKEY", Application.get_env(:binance, :api_key)}
+             {"X-MBX-APIKEY", apikey}
            ]
          ]) do
       {:error, err} ->
@@ -119,7 +117,7 @@ defmodule Binance.Rest.HTTPClient do
 
   defp do_unsigned_request(url, nil, method, headers) do
     apply(HTTPoison, method, [
-      "#{@endpoint}#{url}",
+      url,
       headers
     ])
   end
@@ -130,14 +128,14 @@ defmodule Binance.Rest.HTTPClient do
       |> prepare_query_params()
 
     apply(HTTPoison, :get, [
-      "#{@endpoint}#{url}" <> "?#{argument_string}",
+      url <> "?#{argument_string}",
       headers
     ])
   end
 
   defp do_unsigned_request(url, body, method, headers) do
     apply(HTTPoison, method, [
-      "#{@endpoint}#{url}",
+      url,
       body,
       headers
     ])
