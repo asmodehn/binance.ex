@@ -33,7 +33,7 @@ defmodule Binance do
   end
 
   def get_exchange_info(%Binance{} = binance \\ %Binance{}) do
-    case HTTPClient.get_binance(binance.endpoint <> "/api/v1/exchangeInfo") do
+    case HTTPClient.get_binance(binance.endpoint <> "/api/v3/exchangeInfo") do
       {:ok, data} -> {:ok, Binance.ExchangeInfo.new(data)}
       err -> err
     end

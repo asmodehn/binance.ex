@@ -4,12 +4,18 @@ defmodule Binance.MixProject do
   def project do
     [
       app: :binance,
-      version: "0.9.0",
+      version: "1.0.1",
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
       description: description(),
       package: package(),
-      deps: deps()
+      deps: deps(),
+      preferred_cli_env: [
+        vcr: :test,
+        "vcr.delete": :test,
+        "vcr.check": :test,
+        "vcr.show": :test
+      ]
     ]
   end
 
@@ -17,7 +23,6 @@ defmodule Binance.MixProject do
   def application do
     [
       mod: {Binance.Supervisor, []},
-      applications: [:exconstructor, :poison, :httpoison],
       extra_applications: [:logger]
     ]
   end
@@ -27,10 +32,10 @@ defmodule Binance.MixProject do
     [
       {:httpoison, "~> 1.4"},
       {:poison, "~> 4.0.0"},
-      {:exconstructor, "~> 1.1.0"},
+      {:exconstructor, "~> 1.2.3"},
       {:ex_doc, ">= 0.0.0", only: :dev},
-      {:mix_test_watch, "~> 0.5", only: :dev, runtime: false},
-      {:exvcr, "~> 0.12.2", only: :test},
+      {:mix_test_watch, "~> 1.0", only: :dev, runtime: false},
+      {:exvcr, "~> 0.13.0", only: [:dev, :test]},
       {:bypass, "~> 2.1", only: :test}
     ]
   end
