@@ -267,6 +267,28 @@ defmodule Binance do
     end
   end
 
+  @doc """
+  Fetches user trades from binance
+
+  Returns `{:ok, [%Binance.Trade{}]}` or `{:error, reason}`.
+
+  In the case of a error on binance, for example with invalid parameters, `{:error, {:binance_error, %{code: code, msg: msg}}}` will be returned.
+
+  Please read https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#account-information-user_data to understand API
+
+  """
+
+  def get_trades(%Binance{} = binance \\ %Binance{}, symbol) when is_binary(symbol) do
+    case HTTPClient.get_binance(
+           binance.endpoint <> "/api/v3/myTrades",
+           %{symbol: symbol},
+           binance.secret_key,
+           binance.api_key
+         ) do
+      {:ok, data} -> {:ok, data |> Enum.map(fn t -> Binance.Trade.new(t) end ) }
+      error -> error
+      end
+  end
   # User data streams
 
   @doc """
